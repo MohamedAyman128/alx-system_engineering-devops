@@ -1,28 +1,21 @@
 #!/usr/bin/python3
-"""this is function file"""
+"""The ability to print popular posts certain Reddit subreddit."""
+import requests
 
 
 def top_ten(subreddit):
-    """
-    prints the titles of the first 10 hot posts listed for a given subreddit
-    """
-    import requests
-
-    url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=10"
-
-    data = requests.get(url,
-                        headers={'User-Agent': 'Mozilla/5.0'},
-                        allow_redirects=False)
-
-    if data.status_code != 200:
+    """Print the top ten posts' titles from a particular subreddit."""
+    lin = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
+    headers = {
+        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
+    }
+    params = {
+        "limit": 10
+    }
+    response = requests.get(lin, headers=headers, params=params,
+                            allow_redirects=False)
+    if response.status_code == 404:
         print("None")
         return
-
-    data = data.json()['data']['children']
-
-    if len(data) == 0:
-        print("None")
-        return
-
-    for x in data:
-        print(x['data']['title'])
+    results = response.json().get("data")
+    [print(c.get("data").get("title")) for c in results.get("children")]

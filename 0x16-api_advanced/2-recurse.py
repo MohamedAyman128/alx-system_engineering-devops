@@ -1,21 +1,30 @@
 #!/usr/bin/python3
-"""file"""
+"""A feature to search popular on Reddit subreddit."""
+import requests
 
 
-def recurse(subreddit, hot_list=[], after=""):
-    """return the number of subscribers"""
-    import requests
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json'
-    params = {'after': after}
-    header = {'User-Agent': 'My User Agent 1.0'}
-    response = requests.get(url, headers=header, params=params,
+def recurse(subreddit, hot_list=[], after="", count=0):
+    """Returns a list of titles of all hot posts on a given subreddit."""
+    lin = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
+    headers = {
+        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
+    }
+    params = {
+        "after": after,
+        "count": count,
+        "limit": 100
+    }
+    response = requests.get(lin, headers=headers, params=params,
                             allow_redirects=False)
     if response.status_code == 404:
         return None
-    data = response.json()
-    after = data.get('data').get("after")
-    for child in data.get('data').get("children"):
-        hot_list.append(child.get("data").get("title"))
+
+    results = response.json().get("data")
+    after = results.get("after")
+    count += results.get("dist")
+    for c in results.get("children"):
+        hot_list.append(c.get("data").get("title"))
+
     if after is not None:
-        return recurse(subreddit, hot_list, after)
+        return recurse(subreddit, hot_list, after, count)
     return hot_list
